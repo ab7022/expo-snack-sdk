@@ -4,7 +4,7 @@ import { diff } from 'deep-object-diff'
 import {QRCodeSVG} from 'qrcode.react'
 import { useState, useEffect, useRef } from 'react'
 import { StyleSheet, css } from 'aphrodite'
-import { Snack, getSupportedSDKVersions, SDKVersion, SnackState } from 'snack-sdk'
+import { Snack, getSupportedSDKVersions, SDKVersion } from 'snack-sdk'
 import dynamic from 'next/dynamic'
 
 import createWorkerTransport from '../components/transports/createWorkerTransport'
@@ -93,44 +93,63 @@ const styles = StyleSheet.create({
   },
 })
 
-export default function Home() {
+// Create a client-only component for the main app content
+export default function SnackEditor() {
   const webPreviewRef = useRef<Window | null>(null)
   const [snack, setSnack] = useState<Snack | null>(null)
-  const [snackState, setSnackState] = useState<SnackState | null>(null)
+  const [snackState, setSnackState] = useState<ReturnType<Snack['getState']>>({
+    files: {},
+    dependencies: {},
+    missingDependencies: {},
+    disabled: false,
+    channel: '',
+    url: '',
+    deviceId: '',
+    online: false,
+    onlineName: '',
+    connectedClients: {},
+    name: '',
+    description: '',
+    sdkVersion: getSupportedSDKVersions()[0],
+    webPreviewURL: '',
+    transports: {},
+    user: undefined,
+    unsaved: true,
+  })
   const [isSaving, setIsSaving] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [codeChangesDelay, setCodeChangesDelay] = useState(INITIAL_CODE_CHANGES_DELAY)
   const [isClientReady, setClientReady] = useState(false)
 
   useEffect(() => {
-    const newSnack = new Snack({
-      ...defaults,
-      disabled: false,
-      codeChangesDelay: INITIAL_CODE_CHANGES_DELAY,
-      verbose: true,
-      webPreviewRef: webPreviewRef.current as any,
-      ...(USE_WORKERS ? { createTransport: createWorkerTransport } : {}),
-    })
-    setSnack(newSnack)
-    setSnackState(newSnack.getState())
-    setClientReady(true)
+    if (typeof window !== 'undefined') {
+      const newSnack = new Snack({
+        ...defaults,
+        disabled: false,
+        codeChangesDelay: INITIAL_CODE_CHANGES_DELAY,
+        verbose: true,
+        webPreviewRef,
+        ...(USE_WORKERS ? { createTransport: createWorkerTransport } : {}),
+      })
+      
+      setSnack(newSnack)
+      setSnackState(newSnack.getState())
+      setClientReady(true)
+
+      const listeners = [
+        newSnack.addStateListener((state, prevState) => {
+          console.log('State changed: ', diff(prevState, state))
+          setSnackState(state)
+        }),
+        newSnack.addLogListener(({ message }) => console.log(message)),
+      ]
+
+      return () => listeners.forEach((listener) => listener())
+    }
   }, [])
 
-  useEffect(() => {
-    if (!snack) return
-
-    const listeners = [
-      snack.addStateListener((state, prevState) => {
-        console.log('State changed: ', diff(prevState, state))
-        setSnackState(state)
-      }),
-      snack.addLogListener(({ message }) => console.log(message)),
-    ]
-
-    return () => listeners.forEach(listener => listener())
-  }, [snack])
-
-  if (!snack || !snackState) {
+  // Early return if not client-side yet
+  if (!isClientReady || !snack) {
     return <div>Loading...</div>
   }
 
@@ -288,4 +307,6 @@ export default function Home() {
       </div>
     </main>
   )
-} 
+}
+
+ 

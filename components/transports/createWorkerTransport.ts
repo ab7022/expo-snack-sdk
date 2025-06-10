@@ -7,7 +7,16 @@ import {
   SnackTransportListener,
 } from 'snack-sdk';
 
-export default function createWorkerTransport(options: SnackTransportOptions) {
+export default function createWorkerTransport(options: SnackTransportOptions): SnackTransport {
+  // Return a no-op transport when running on server-side
+  if (typeof window === 'undefined') {
+    return {
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      postMessage: () => {},
+    };
+  }
+
   let transport: SnackTransport | null = null;
   function getTransport(): SnackTransport {
     if (!transport) {
