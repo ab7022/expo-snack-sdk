@@ -162,7 +162,13 @@ export default function Home() {
         <div className={css(styles.previewContainer)}>
           <iframe
             className={css(styles.previewFrame)}
-            ref={(c) => (webPreviewRef.current = c?.contentWindow ?? null)}
+            ref={(c) => {
+              if (c) {
+                webPreviewRef.current = c.contentWindow;
+              } else {
+                webPreviewRef.current = null;
+              }
+            }}
             src={isClientReady ? webPreviewURL : undefined}
             allow="geolocation; camera; microphone"
           />
