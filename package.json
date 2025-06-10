@@ -1,0 +1,29 @@
+{
+  "name": "snack-sdk-example",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3099",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "aphrodite": "^2.4.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "deep-object-diff": "^1.1.9",
+    "next": "^14.1.0",
+    "process": "^0.11.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "snack-sdk": "~6.4.0",
+    "stream-browserify": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.19",
+    "@types/react": "^18.2.57",
+    "@types/react-dom": "^18.2.19",
+    "cross-env": "^7.0.3",
+    "typescript": "^5.3.3"
+  }
+}
