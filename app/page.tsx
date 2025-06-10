@@ -1,7 +1,7 @@
 'use client'
 
 import { diff } from 'deep-object-diff'
-import QRCodeSVG from 'qrcode.react'
+import {QRCodeSVG} from 'qrcode.react'
 import { useState, useEffect, useRef } from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import { Snack, getSupportedSDKVersions, SDKVersion } from 'snack-sdk'
