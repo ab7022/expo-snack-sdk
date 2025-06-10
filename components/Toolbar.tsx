@@ -1,7 +1,7 @@
 import { StyleSheet, css } from 'aphrodite';
 import * as React from 'react';
 
-export const Toolbar = (props) => {
+export const Toolbar = (props:any) => {
   const { title, children } = props;
   return (
     <div className={css(styles.toolbar)}>

@@ -1,7 +1,7 @@
 import { StyleSheet, css } from 'aphrodite';
 import * as React from 'react';
 
-export const Button = (props) => {
+export const Button = (props:any) => {
   const { label, loading, style, ...rest } = props;
   return (
     <a className={css(styles.button, style)} href="#" {...rest} disabled={loading}>
