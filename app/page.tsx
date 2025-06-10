@@ -4,7 +4,7 @@ import { diff } from 'deep-object-diff'
 import {QRCodeSVG} from 'qrcode.react'
 import { useState, useEffect, useRef } from 'react'
 import { StyleSheet, css } from 'aphrodite'
-import { Snack, getSupportedSDKVersions, SDKVersion } from 'snack-sdk'
+import { Snack, getSupportedSDKVersions, SDKVersion, SnackState } from 'snack-sdk'
 import dynamic from 'next/dynamic'
 
 import createWorkerTransport from '../components/transports/createWorkerTransport'
@@ -13,7 +13,7 @@ import { Toolbar } from '../components/Toolbar'
 import defaults from '../components/Defaults'
 
 const INITIAL_CODE_CHANGES_DELAY = 500
-const VERBOSE = typeof window !== 'undefined'
+const VERBOSE = false
 const USE_WORKERS = true
 
 const styles = StyleSheet.create({
@@ -95,24 +95,30 @@ const styles = StyleSheet.create({
 
 export default function Home() {
   const webPreviewRef = useRef<Window | null>(null)
-  const [snack] = useState(
-    () =>
-      new Snack({
-        ...defaults,
-        disabled: typeof window === 'undefined',
-        codeChangesDelay: INITIAL_CODE_CHANGES_DELAY,
-        verbose: VERBOSE,
-        webPreviewRef: typeof window !== 'undefined' ? webPreviewRef : undefined,
-        ...(USE_WORKERS ? { createTransport: createWorkerTransport } : {}),
-      })
-  )
-  const [snackState, setSnackState] = useState(snack.getState())
+  const [snack, setSnack] = useState<Snack | null>(null)
+  const [snackState, setSnackState] = useState<SnackState | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [codeChangesDelay, setCodeChangesDelay] = useState(INITIAL_CODE_CHANGES_DELAY)
   const [isClientReady, setClientReady] = useState(false)
 
   useEffect(() => {
+    const newSnack = new Snack({
+      ...defaults,
+      disabled: false,
+      codeChangesDelay: INITIAL_CODE_CHANGES_DELAY,
+      verbose: true,
+      webPreviewRef: webPreviewRef.current as any,
+      ...(USE_WORKERS ? { createTransport: createWorkerTransport } : {}),
+    })
+    setSnack(newSnack)
+    setSnackState(newSnack.getState())
+    setClientReady(true)
+  }, [])
+
+  useEffect(() => {
+    if (!snack) return
+
     const listeners = [
       snack.addStateListener((state, prevState) => {
         console.log('State changed: ', diff(prevState, state))
@@ -120,11 +126,13 @@ export default function Home() {
       }),
       snack.addLogListener(({ message }) => console.log(message)),
     ]
-    if (typeof window !== 'undefined') {
-      setClientReady(true)
-    }
-    return () => listeners.forEach((listener) => listener())
+
+    return () => listeners.forEach(listener => listener())
   }, [snack])
+
+  if (!snack || !snackState) {
+    return <div>Loading...</div>
+  }
 
   const {
     files,
