@@ -1,7 +1,7 @@
 'use client'
 
 import { diff } from 'deep-object-diff'
-import QRCode from 'qrcode.react'
+import QRCodeSVG from 'qrcode.react'
 import { useState, useEffect, useRef } from 'react'
 import { StyleSheet, css } from 'aphrodite'
 import { Snack, getSupportedSDKVersions, SDKVersion } from 'snack-sdk'
@@ -263,7 +263,7 @@ export default function Home() {
               <Button label="Send Code changes" onClick={() => snack.sendCodeChanges()} />
             ) : undefined}
             <label>{`Status: ${online ? 'Online' : 'Offline'}`}</label>
-            {online ? <QRCode className={css(styles.qrcode)} value={url} /> : undefined}
+            {online ? <QRCodeSVG className={css(styles.qrcode)} value={url} /> : undefined}
             {online ? <a href={url}>{url}</a> : undefined}
             {online ? <label>{`Online name: ${onlineName}`}</label> : undefined}
             {online ? (
