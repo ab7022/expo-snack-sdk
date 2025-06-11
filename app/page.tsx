@@ -105,6 +105,7 @@ export default function SnackEditor() {
     channel: '',
     url: '',
     deviceId: '',
+    id: '',
     online: false,
     onlineName: '',
     connectedClients: {},
@@ -134,6 +135,7 @@ export default function SnackEditor() {
       
       setSnack(newSnack)
       setSnackState(newSnack.getState())
+      console.log("newSnack.getState()", newSnack.getState())
       setClientReady(true)
 
       const listeners = [
@@ -164,6 +166,7 @@ export default function SnackEditor() {
     description,
     sdkVersion,
     webPreviewURL,
+    id,
   } = snackState
 
   return (
@@ -243,11 +246,13 @@ export default function SnackEditor() {
           </Toolbar>
           <div className={css(styles.settingsContent)}>
             <label>Name</label>
+            
             <input
               type="text"
               value={name}
               onChange={(event) => snack.setName(event.target.value)}
-            />
+            /> <br/>
+            <a href={`https://snack.expo.dev/${id}`}>See on Snack</a><br/>
             <label>Description</label>
             <input
               type="text"
